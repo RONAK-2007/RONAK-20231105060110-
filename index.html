@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MALWARE.SIM//TERMINAL v2.1.7</title>
+<style>
+/* ---------- HACKER THEME VARIABLES ---------- */
+:root{
+  --bg:#000000;
+  --terminal-green:#00ff41;
+  --terminal-dim:#008f11;
+  --matrix-green:#0f0;
+  --warning-red:#ff0040;
+  --warning-yellow:#ffd700;
+  --glass-green:rgba(0,255,65,0.05);
+  --border-green:rgba(0,255,65,0.3);
+  --shadow-green:rgba(0,255,65,0.2);
+}
+
+/* ---------- MATRIX BACKGROUND ---------- */
+html,body{
+  margin:0;height:100%;
+  font-family:'Courier New','Courier',monospace;
+  color:var(--terminal-green);
+  background:#000;
+  overflow:hidden;position:relative;
+}
+
+/* Scanlines effect */
+body::before{
+  content:"";
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events:none;
+  z-index:999;
+  animation:scanlines 8s linear infinite;
+}
+
+@keyframes scanlines{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(10px);}
+}
+
+/* Matrix rain effect */
+#matrix{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  opacity:0.15;
+}
+
+/* Glitch effect container */
+.glitch-container{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events:none;
+  z-index:998;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(0,255,65,0.03), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255,0,64,0.02), transparent 40%);
+}
+
+/* ---------- LAYOUT ---------- */
+.app{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:420px 1fr;
+  gap:16px;padding:16px;height:100vh;box-sizing:border-box;
+}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;grid-auto-rows:min-content;}
+}
+
+/* ---------- TERMINAL PANELS ---------- */
+.panel{
+  background:rgba(0,0,0,0.85);
+  border:2px solid var(--border-green);
+  border-radius:0;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  padding:0;
+  box-shadow:
+    0 0 20px var(--shadow-green),
+    inset 0 0 20px rgba(0,255,65,0.03);
+  transition:box-shadow .3s ease, border-color .3s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--terminal-green), transparent);
+  animation:scan-horizontal 3s linear infinite;
+}
+
+@keyframes scan-horizontal{
+  0%{transform:translateX(-100%);}
+  100%{transform:translateX(100%);}
+}
+
+.panel:hover{
+  box-shadow:
+    0 0 30px var(--shadow-green),
+    inset 0 0 30px rgba(0,255,65,0.05);
+  border-color:var(--terminal-green);
+}
+
+/* Terminal header */
+.terminal-header{
+  background:rgba(0,255,65,0.1);
+  border-bottom:1px solid var(--border-green);
+  padding:8px 12px;
+  font-size:11px;
+  letter-spacing:2px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.terminal-header::before{
+  content:"█";
+  color:var(--terminal-green);
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%, 49%{opacity:1;}
+  50%, 100%{opacity:0;}
+}
+
+.terminal-body{
+  padding:16px;
+}
+
+/* ---------- CONTROLS ---------- */
+h2{
+  font-size:14px;
+  margin:0 0 16px 0;
+  font-weight:400;
+  color:var(--terminal-green);
+  text-transform:uppercase;
+  letter-spacing:3px;
+  text-shadow:0 0 10px var(--terminal-green);
+}
+
+label{
+  display:block;
+  font-size:11px;
+  color:var(--terminal-dim);
+  margin-top:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+label span{
+  color:var(--terminal-green);
+  float:right;
+  text-shadow:0 0 5px var(--terminal-green);
+}
+
+input[type=range]{
+  width:100%;
+  appearance:none;
+  height:4px;
+  border-radius:0;
+  background:rgba(0,255,65,0.1);
+  outline:none;
+  border:1px solid var(--terminal-dim);
+  margin-top:4px;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;
+  width:12px;
+  height:12px;
+  border-radius:0;
+  background:var(--terminal-green);
+  border:1px solid var(--terminal-green);
+  cursor:crosshair;
+  box-shadow:0 0 10px var(--terminal-green);
+}
+
+button{
+  background:rgba(0,255,65,0.05);
+  border:1px solid var(--border-green);
+  padding:10px 14px;
+  border-radius:0;
+  color:var(--terminal-green);
+  font-weight:400;
+  font-size:11px;
+  font-family:'Courier New',monospace;
+  cursor:crosshair;
+  margin-top:12px;
+  margin-right:8px;
+  transition:all .2s;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  text-shadow:0 0 5px var(--terminal-green);
+  position:relative;
+}
+
+button::before{
+  content:">";
+  margin-right:6px;
+}
+
+button:hover{
+  background:rgba(0,255,65,0.15);
+  box-shadow:0 0 15px var(--shadow-green);
+  border-color:var(--terminal-green);
+}
+
+button:active{
+  background:rgba(0,255,65,0.25);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:8px;
+  margin-top:16px;
+}
+
+.stat{
+  background:rgba(0,255,65,0.03);
+  padding:10px;
+  border:1px solid var(--terminal-dim);
+  border-radius:0;
+  transition:all .2s;
+}
+
+.stat:hover{
+  background:rgba(0,255,65,0.08);
+  border-color:var(--border-green);
+  box-shadow:0 0 10px var(--shadow-green);
+}
+
+.small{
+  font-size:9px;
+  color:var(--terminal-dim);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:400;
+  margin-bottom:4px;
+}
+
+.stat > div:last-child{
+  font-size:20px;
+  font-weight:700;
+  color:var(--terminal-green);
+  font-family:'Courier New',monospace;
+  text-shadow:0 0 8px var(--terminal-green);
+}
+
+/* ---------- CANVASES ---------- */
+.canvas-wrap{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+
+#networkCanvas{
+  flex:1;
+  border-radius:0;
+  background:rgba(0,0,0,0.5);
+  box-shadow:inset 0 0 30px rgba(0,255,65,0.1);
+  border:1px solid var(--terminal-dim);
+}
+
+#plotCanvas{
+  height:180px;
+  margin-top:16px;
+  background:rgba(0,0,0,0.5);
+  border-radius:0;
+  box-shadow:inset 0 0 20px rgba(0,255,65,0.1);
+  border:1px solid var(--terminal-dim);
+}
+
+#logBox{
+  margin-top:16px;
+  height:150px;
+  overflow-y:auto;
+  background:rgba(0,0,0,0.8);
+  border:1px solid var(--terminal-dim);
+  padding:12px;
+  font-size:11px;
+  line-height:1.6;
+  font-family:'Courier New',monospace;
+}
+
+#logBox::-webkit-scrollbar{
+  width:8px;
+}
+
+#logBox::-webkit-scrollbar-track{
+  background:rgba(0,255,65,0.05);
+}
+
+#logBox::-webkit-scrollbar-thumb{
+  background:var(--terminal-dim);
+  border:1px solid var(--border-green);
+}
+
+#logBox::-webkit-scrollbar-thumb:hover{
+  background:var(--border-green);
+}
+
+footer{
+  font-size:10px;
+  color:var(--terminal-dim);
+  margin-top:16px;
+  padding-top:12px;
+  border-top:1px solid var(--terminal-dim);
+}
+
+.legend{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+
+.legend > span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:0;
+  box-shadow:0 0 8px currentColor;
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot{
+  0%, 100%{opacity:1;}
+  50%{opacity:0.6;}
+}
+
+.dot.clean{background:#00ff41;}
+.dot.virus{background:#ff0040;}
+.dot.worm{background:#ffd700;}
+.dot.trojan{background:#00d4ff;}
+.dot.active{background:#ff00ff;}
+
+/* System status indicator */
+.status-bar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:24px;
+  background:rgba(0,0,0,0.95);
+  border-bottom:1px solid var(--border-green);
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  font-size:10px;
+  letter-spacing:1px;
+  z-index:1000;
+  box-shadow:0 2px 10px rgba(0,255,65,0.2);
+}
+
+.status-bar::before{
+  content:"SYSTEM://ACTIVE";
+  color:var(--terminal-green);
+  margin-right:20px;
+  text-shadow:0 0 5px var(--terminal-green);
+}
+
+.status-bar::after{
+  content:"ACCESS://GRANTED";
+  margin-left:auto;
+  color:var(--terminal-green);
+  text-shadow:0 0 5px var(--terminal-green);
+}
+</style>
+</head>
+
+<body>
+<div class="status-bar"></div>
+<canvas id="matrix"></canvas>
+<div class="glitch-container"></div>
+
+<div class="app" style="margin-top:24px;">
+  <div class="panel controls">
+    <div class="terminal-header">
+      <span>CONTROL.PANEL</span>
+      <span>v2.1.7</span>
+    </div>
+    <div class="terminal-body">
+      <h2>⚠ MALWARE SIMULATOR ⚠</h2>
+      
+      <label>NODES <span id="nodesLabel">80</span></label>
+      <input id="numNodes" type="range" min="10" max="200" value="80">
+
+      <label>AVG DEGREE <span id="avgDegreeLabel">4</span></label>
+      <input id="avgDegree" type="range" min="1" max="20" value="4">
+
+      <label>TIMESTEPS <span id="timestepsLabel">60</span></label>
+      <input id="timesteps" type="range" min="10" max="300" value="60">
+
+      <label>MEETINGS/STEP <span id="meetingsLabel">30</span></label>
+      <input id="meetings" type="range" min="0" max="200" value="30">
+
+      <label>VIRUS SPREAD <span id="virusChanceLabel">0.18</span></label>
+      <input id="virusChance" type="range" min="0" max="1" step="0.01" value="0.18">
+
+      <label>WORM SPREAD <span id="wormChanceLabel">0.25</span></label>
+      <input id="wormChance" type="range" min="0" max="1" step="0.01" value="0.25">
+
+      <label>TROJAN CHANCE <span id="trojanChanceLabel">0.02</span></label>
+      <input id="trojanChance" type="range" min="0" max="1" step="0.01" value="0.02">
+
+      <label>TROJAN DELAY <span id="trojanDelayLabel">6</span></label>
+      <input id="trojanDelay" type="range" min="0" max="60" value="6">
+
+      <div style="margin-top:20px;">
+        <button id="startBtn">RUN</button>
+        <button id="stepBtn">STEP</button>
+        <button id="resetBtn">RESET</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="small">TIMESTEP</div><div id="timestepVal">0</div></div>
+        <div class="stat"><div class="small">CLEAN</div><div id="cleanVal">0</div></div>
+        <div class="stat"><div class="small">VIRUS</div><div id="virusVal">0</div></div>
+        <div class="stat"><div class="small">WORM</div><div id="wormVal">0</div></div>
+        <div class="stat"><div class="small">TROJAN.D</div><div id="trojanDormVal">0</div></div>
+        <div class="stat"><div class="small">TROJAN.A</div><div id="trojanActiveVal">0</div></div>
+      </div>
+
+      <footer>
+        <div class="legend">
+          <span><div class="dot clean"></div>CLEAN</span>
+          <span><div class="dot virus"></div>VIRUS</span>
+          <span><div class="dot worm"></div>WORM</span>
+          <span><div class="dot trojan"></div>TROJAN.D</span>
+          <span><div class="dot active"></div>TROJAN.A</span>
+        </div>
+        <p>> EDUCATIONAL SIMULATION ONLY<br>> NO ACTUAL I/O OPERATIONS</p>
+      </footer>
+    </div>
+  </div>
+
+  <div class="panel canvas-wrap">
+    <div class="terminal-header">
+      <span>NETWORK.VISUALIZATION</span>
+      <span>REAL-TIME</span>
+    </div>
+    <div class="terminal-body" style="height:calc(100% - 40px);display:flex;flex-direction:column;">
+      <canvas id="networkCanvas"></canvas>
+      <canvas id="plotCanvas"></canvas>
+      <div id="logBox">
+        <div style="color:var(--terminal-green);margin-bottom:8px;">> SYSTEM LOG INITIALIZED</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Matrix rain effect
+const matrixCanvas=document.getElementById('matrix');
+const mctx=matrixCanvas.getContext('2d');
+matrixCanvas.width=window.innerWidth;
+matrixCanvas.height=window.innerHeight;
+
+const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+const fontSize=14;
+const columns=Math.floor(matrixCanvas.width/fontSize);
+const drops=Array(columns).fill(1);
+
+function drawMatrix(){
+  mctx.fillStyle='rgba(0,0,0,0.05)';
+  mctx.fillRect(0,0,matrixCanvas.width,matrixCanvas.height);
+  mctx.fillStyle='#00ff41';
+  mctx.font=fontSize+'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const text=chars[Math.floor(Math.random()*chars.length)];
+    mctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>matrixCanvas.height&&Math.random()>0.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix,50);
+
+/* ------- SIMULATION SCRIPT ------- */
+const netCanvas=document.getElementById('networkCanvas'),
+      plotCanvas=document.getElementById('plotCanvas');
+const ctx=netCanvas.getContext('2d'), pctx=plotCanvas.getContext('2d');
+
+function resize(){
+  const parent=netCanvas.parentElement;
+  netCanvas.width=parent.clientWidth;
+  netCanvas.height=parent.clientHeight-370;
+  plotCanvas.width=parent.clientWidth;
+  plotCanvas.height=180;
+  drawNetwork(); drawPlot();
+}
+window.addEventListener('resize',resize);
+
+/* Controls */
+const inputs=[...document.querySelectorAll('input[type=range]')];
+inputs.forEach(el=>el.addEventListener('input',()=>document.getElementById(el.id+'Label').textContent=el.value));
+
+/* Simulation State */
+let nodes=[],edges={},timestep=0,history=[],running=false,loop;
+function Node(i){this.id=i;this.x=0;this.y=0;this.state='clean';this.delay=0;}
+
+function log(msg,color='#00ff41'){
+  const logBox=document.getElementById('logBox');
+  const time=new Date().toLocaleTimeString('en-US',{hour12:true,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const entry=document.createElement('div');
+  entry.style.color=color;
+  entry.textContent=`[${time}] ${msg}`;
+  logBox.appendChild(entry);
+  logBox.scrollTop=logBox.scrollHeight;
+  if(logBox.children.length>100)logBox.removeChild(logBox.children[1]);
+}
+
+function makeGraph(n,avg){
+  nodes=[];edges={};
+  for(let i=0;i<n;i++)edges[i]=new Set();
+  const p=Math.min(1,avg/(n-1));
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(Math.random()<p){edges[i].add(j);edges[j].add(i);}
+  const R=Math.min(netCanvas.width,netCanvas.height)/2-40;
+  for(let i=0;i<n;i++){
+    const nd=new Node(i);
+    const a=i/n*Math.PI*2;
+    nd.x=netCanvas.width/2+Math.cos(a)*R*0.7+(Math.random()-0.5)*80;
+    nd.y=netCanvas.height/2+Math.sin(a)*R*0.7+(Math.random()-0.5)*80;
+    nodes.push(nd);
+  }
+  nodes[0].state='virus';
+  if(n>1)nodes[1].state='worm';
+  if(n>2){nodes[2].state='trojan';nodes[2].delay=parseInt(document.getElementById('trojanDelay').value);}
+  timestep=0;history=[];
+}
+
+function step(){
+  const virusP=parseFloat(document.getElementById('virusChance').value);
+  const wormP=parseFloat(document.getElementById('wormChance').value);
+  const trojanP=parseFloat(document.getElementById('trojanChance').value);
+  const trojanDelay=parseInt(document.getElementById('trojanDelay').value);
+  const meetings=parseInt(document.getElementById('meetings').value);
+  const n=nodes.length;
+  const newInf=[];
+  
+  for(let i=0;i<meetings;i++){
+    const a=Math.floor(Math.random()*n), b=Math.floor(Math.random()*n);
+    if(a===b)continue;
+    const A=nodes[a],B=nodes[b];
+    if(A.state==='virus'&&B.state==='clean'&&Math.random()<virusP){
+      newInf.push({node:B,state:'virus'});
+      log(`Virus: Requires host file to replicate`,'#ff0040');
+      log(`Node ${B.id} executed infected file`,'#ff0040');
+    }
+    if(B.state==='virus'&&A.state==='clean'&&Math.random()<virusP){
+      newInf.push({node:A,state:'virus'});
+      log(`Virus: Requires host file to replicate`,'#ff0040');
+      log(`Node ${A.id} executed infected file`,'#ff0040');
+    }
+    if(A.state==='worm'&&B.state==='clean'&&Math.random()<wormP){
+      newInf.push({node:B,state:'worm'});
+      log(`Node ${B.id} opened infected attachment from Node ${A.id}`,'#ffd700');
+    }
+    if(B.state==='worm'&&A.state==='clean'&&Math.random()<wormP){
+      newInf.push({node:A,state:'worm'});
+      log(`Node ${A.id} opened infected attachment from Node ${B.id}`,'#ffd700');
+    }
+  }
+  
+  for(const n of nodes){
+    if(n.state==='clean'&&Math.random()<trojanP){
+      n.state='trojan';
+      n.delay=trojanDelay;
+      log(`Node ${n.id} downloaded infected file (Trojan dormant)`,'#00d4ff');
+    }
+    if(n.state==='trojan'){
+      n.delay--;
+      if(n.delay<=0){
+        n.state='active';
+        log(`Node ${n.id} Trojan activated - executing payload`,'#ff00ff');
+      }
+    }
+  }
+  
+  for(const x of newInf)x.node.state=x.state;
+  timestep++;
+  drawNetwork(); drawPlot();
+  
+  document.getElementById('timestepVal').textContent=timestep;
+  const counts={clean:0,virus:0,worm:0,trojan:0,active:0};
+  for(const n of nodes)counts[n.state]?(counts[n.state]++):(counts[n.state]=1);
+  document.getElementById('cleanVal').textContent=counts.clean||0;
+  document.getElementById('virusVal').textContent=counts.virus||0;
+  document.getElementById('wormVal').textContent=counts.worm||0;
+  document.getElementById('trojanDormVal').textContent=counts.trojan||0;
+  document.getElementById('trojanActiveVal').textContent=counts.active||0;
+  history.push(counts);
+}
+
+function drawNetwork(){
+  ctx.fillStyle='rgba(0,0,0,0.1)';
+  ctx.fillRect(0,0,netCanvas.width,netCanvas.height);
+  
+  ctx.lineWidth=0.5;
+  ctx.strokeStyle="rgba(0,255,65,0.1)";
+  
+  for(const i in edges)for(const j of edges[i]){
+    const a=nodes[i],b=nodes[j];
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.stroke();
+  }
+  
+  for(const n of nodes){
+    let c="#00ff41";
+    if(n.state==='virus')c="#ff0040";
+    else if(n.state==='worm')c="#ffd700";
+    else if(n.state==='trojan')c="#00d4ff";
+    else if(n.state==='active')c="#ff00ff";
+    
+    ctx.beginPath();
+    ctx.fillStyle=c;
+    ctx.shadowBlur=12;
+    ctx.shadowColor=c;
+    ctx.arc(n.x,n.y,4,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+}
+
+function drawPlot(){
+  pctx.fillStyle='rgba(0,0,0,0.1)';
+  pctx.fillRect(0,0,plotCanvas.width,plotCanvas.height);
+  
+  const keys=['clean','virus','worm','trojan','active'];
+  const colors={clean:'#00ff41',virus:'#ff0040',worm:'#ffd700',trojan:'#00d4ff',active:'#ff00ff'};
+  const len=history.length;if(!len)return;
+  
+  // Grid lines
+  pctx.strokeStyle='rgba(0,255,65,0.05)';
+  pctx.lineWidth=0.5;
+  for(let i=0;i<5;i++){
+    const y=i*plotCanvas.height/4;
+    pctx.beginPath();
+    pctx.moveTo(0,y);
+    pctx.lineTo(plotCanvas.width,y);
+    pctx.stroke();
+  }
+  
+  keys.forEach(k=>{
+    pctx.beginPath();
+    pctx.strokeStyle=colors[k];
+    pctx.lineWidth=2;
+    pctx.shadowBlur=6;
+    pctx.shadowColor=colors[k];
+    
+    for(let i=0;i<len;i++){
+      const y=plotCanvas.height*(1-(history[i][k]||0)/nodes.length);
+      const x=i/len*plotCanvas.width;
+      if(i===0)pctx.moveTo(x,y);else pctx.lineTo(x,y);
+    }
+    pctx.stroke();
+    pctx.shadowBlur=0;
+  });
+}
+
+document.getElementById('startBtn').onclick=()=>{
+  if(running){
+    running=false;
+    clearInterval(loop);
+    document.getElementById('startBtn').textContent='RUN';
+    log('Simulation paused','#00ff41');
+    return;
+  }
+  running=true;
+  document.getElementById('startBtn').textContent='PAUSE';
+  log('Simulation started','#00ff41');
+  loop=setInterval(()=>{
+    step();
+    if(timestep>=parseInt(document.getElementById('timesteps').value)){
+      running=false;
+      clearInterval(loop);
+      document.getElementById('startBtn').textContent='RUN';
+      log('Simulation completed','#00ff41');
+    }
+  },150);
+};
+
+document.getElementById('stepBtn').onclick=step;
+
+document.getElementById('resetBtn').onclick=()=>{
+  clearInterval(loop);
+  running=false;
+  document.getElementById('startBtn').textContent='RUN';
+  makeGraph(parseInt(document.getElementById('numNodes').value),parseInt(document.getElementById('avgDegree').value));
+  drawNetwork();drawPlot();
+  document.getElementById('logBox').innerHTML='<div style="color:var(--terminal-green);margin-bottom:8px;">> SYSTEM RESET - NETWORK REINITIALIZED</div>';
+  log('Network created with '+nodes.length+' nodes','#00ff41');
+  log('Initial infections deployed','#00ff41');
+};
+
+makeGraph(80,4);
+resize();
+log('Network initialized with 80 nodes','#00ff41');
+log('Awaiting simulation commands...','#00ff41');
+</script>
+</body>
+</html>
